@@ -51,16 +51,16 @@ app.get("/control/:action", function (req, res) {
   const action = req.params.action; // actionを受け取る
 
   // actionによって、Arduinoを制御
-  if (action == "led") {
-    arduinoSerial.write("w");
-    return res.send("Led light is on!");
+  switch (action) {
+    case "led":
+      arduinoSerial.write("w");
+      return res.send("Led light is on!");
+    case "off":
+      arduinoSerial.write("t");
+      return res.send("Led light is off!");
+    default:
+      return res.send("Action: " + action);
   }
-  if (action == "off") {
-    arduinoSerial.write("t");
-    return res.send("Led light is off!");
-  }
-
-  return res.send("Action: " + action);
 });
 
 ////////////////////////////////////////////////////////////////
