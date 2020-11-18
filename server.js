@@ -1,46 +1,45 @@
-"use strict";
-
-// Set up express server
 const express = require("express");
 const app = express();
-const PORT = 3001;
-
-// Corresponding CORS(Cross-Origin Resource Sharing)
-const cors = require("cors");
-app.use(cors());
-
-// Start server
-app.listen(PORT, () => {
-  console.log(
-    "Expressサーバーがポート%dで起動しました。モード:%s",
-    PORT,
-    app.settings.env
-  );
-});
-
-// Set up Serial Communication
 const SerialPort = require("serialport");
-const Readline = require("@serialport/parser-readline");
-const parser = new Readline();
-const port = new SerialPort("/dev/cu.URT0");
-port.pipe(parser);
 
-// Load Sensor value
-parser.on("data", line => {
-  convert(line);
+// config
+const port = 3001;
+const arduinoCOMPort = "/dev/cu.usbmodem141401";
+
+// Arduino Serial
+const arduinoSerialPort = new SerialPort(arduinoCOMPort, 9600);
+arduinoSerialPort.on("open", function () {
+  console.log("Serial Port " + arduinoCOMPort + " is opened.");
+});
+arduinoSerialPort.on("data", (data) => {
+  console.log("Data: " + data);
 });
 
-let DataJson = { data: 0 };
+////////////////////////////////////////////////////////////////
 
-// Convert Sensor value to JSON
-const convert = line => {
-  console.log(`> ${line}`);
-  DataJson = {
-    data: line
-  };
-};
+// indexページ
+app.get("/", function (req, res) {
+  return res.send("Working");
+});
 
-// Push JSON
-app.get("/", (req, res) => {
-  res.json(DataJson);
+// action LED制御
+app.get("/:action", function (req, res) {
+  var action = req.params.action;
+
+  if (action == "led") {
+    arduinoSerialPort.write("w");
+    return res.send("Led light is on!");
+  }
+  if (action == "off") {
+    arduinoSerialPort.write("t");
+    return res.send("Led light is off!");
+  }
+
+  return res.send("Action: " + action);
+});
+
+////////////////////////////////////////////////////////////////
+
+app.listen(port, function () {
+  console.log("Example app listening on port http://localhost:" + port + "!");
 });
