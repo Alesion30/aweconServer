@@ -41,17 +41,19 @@ parser.on("data", (data) => {
   const temp = util.getNumberVal(data);
   if (temp !== null) currentTemp = temp + offset;
 
-  // 現在の日時(秒・ミリ秒は無視)
-  const _d = new Date();
-  _d.setSeconds(0, 0);
+  if ((process.env.STORE || "false") === "true") {
+    // 現在の日時(秒・ミリ秒は無視)
+    const _d = new Date();
+    _d.setSeconds(0, 0);
 
-  // 10分おきにfiretoreに室温を保存
-  if (_d.getTime() !== flag && _d.getMinutes() % 10 === 0) {
-    console.log(_d);
-    flag = _d.getTime();
+    // 10分おきにfiretoreに室温を保存
+    if (_d.getTime() !== flag && _d.getMinutes() % 10 === 0) {
+      console.log(_d);
+      flag = _d.getTime();
 
-    // firestoreに保存
-    fsNetwork.saveTempData(currentTemp, _d);
+      // firestoreに保存
+      fsNetwork.saveTempData(currentTemp, _d);
+    }
   }
 });
 
