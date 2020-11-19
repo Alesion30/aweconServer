@@ -3,6 +3,10 @@ const app = express();
 const SerialPort = require("serialport");
 const Readline = require("@serialport/parser-readline");
 
+// 環境変数ファイル(.env) 読み込み
+require('dotenv').config();
+const env = process.env;
+
 // Corresponding CORS(Cross-Origin Resource Sharing)
 const cors = require("cors");
 app.use(cors());
@@ -22,7 +26,7 @@ parser.on("open", function () {
 });
 
 // シリアル通信 受信時
-let currentTemp = 0;
+let currentTemp = null;
 parser.on("data", (data) => {
   // 送られてきたデータが数値だったら、現在の室温に反映
   let castData = Number(data);
@@ -50,7 +54,7 @@ app.get("/temp", function (req, res) {
 app.get("/control/:action", function (req, res) {
   const action = req.params.action; // actionを受け取る
 
-  // actionによって、Arduinoを制御
+  // Arduinoにactionを送信
   switch (action) {
     case "led":
       arduinoSerial.write("w");
