@@ -9,6 +9,7 @@ require("dotenv").config();
 const arduino = require("./arduino.js");
 const action = require("./action.js");
 const util = require("./util.js");
+const fsNetwork = require("./network/firestoreNetwork.js");
 
 // Expressアプリ 初期化
 const app = express();
@@ -48,6 +49,9 @@ parser.on("data", (data) => {
   if (_d.getTime() !== flag && _d.getMinutes() % 10 === 0) {
     console.log(_d);
     flag = _d.getTime();
+
+    // firestoreに保存
+    fsNetwork.saveTempData(currentTemp, _d);
   }
 });
 
