@@ -20,19 +20,35 @@ app.use(cors());
 const arduinoCOMPort = arduino.arduinoCOMPort;
 const parser = arduino.parser;
 
+// 変数用意
+let currentTemp = null; // 現在の室温
+let flag = 0;
+
+// 定数用意
+const offset = -6;
+
 // シリアル通信 開始時
 parser.on("open", () => {
   console.log(`Serial Port ${arduinoCOMPort} is opened.`);
 });
 
 // シリアル通信 受信時
-let currentTemp = null;
 parser.on("data", (data) => {
   console.log(data);
 
   // 現在の室温を反映
   const temp = util.getNumberVal(data);
-  if (temp !== null) currentTemp = temp;
+  if (temp !== null) currentTemp = temp + offset;
+
+  // 現在の日時(秒・ミリ秒は無視)
+  const _d = new Date();
+  _d.setSeconds(0, 0);
+
+  // 10分おきにfiretoreに室温を保存
+  if (_d.getTime() !== flag && _d.getMinutes() % 10 === 0) {
+    console.log(_d);
+    flag = _d.getTime();
+  }
 });
 
 ////////////////////////////////////////////////////////////////
