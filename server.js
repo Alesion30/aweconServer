@@ -1,24 +1,22 @@
+// モジュール読み込み
 const express = require("express");
-const app = express();
-const SerialPort = require("serialport");
-const Readline = require("@serialport/parser-readline");
+const cors = require("cors");
 
 // 環境変数ファイル(.env) 読み込み
-require('dotenv').config();
-const env = process.env;
+require("dotenv").config();
 
-// Corresponding CORS(Cross-Origin Resource Sharing)
-const cors = require("cors");
+// 外部ファイル 読み込み
+const arduino = require("./arduino.js");
+const action = require("./action.js");
+
+// Expressアプリ 初期化
+const app = express();
 app.use(cors());
 
-// config
-const port = 3001;
-const arduinoCOMPort = "/dev/cu.usbmodem141401";
+////////////////////////////////////////////////////////////////
 
 // Arduino Serial
-const parser = new Readline();
-const arduinoSerial = new SerialPort(arduinoCOMPort);
-arduinoSerial.pipe(parser);
+const parser = arduino.parser;
 
 // シリアル通信 開始時
 parser.on("open", function () {
@@ -27,16 +25,7 @@ parser.on("open", function () {
 
 // シリアル通信 受信時
 let currentTemp = null;
-parser.on("data", (data) => {
-  // 送られてきたデータが数値だったら、現在の室温に反映
-  let castData = Number(data);
-  if (!isNaN(castData)) {
-    console.log("temp: " + castData);
-    currentTemp = castData;
-  } else {
-    console.log("data: " + data);
-  }
-});
+parser.on("data", arduino.action);
 
 ////////////////////////////////////////////////////////////////
 
@@ -51,24 +40,11 @@ app.get("/temp", function (req, res) {
 });
 
 // Arduinoの制御
-app.get("/control/:action", function (req, res) {
-  const action = req.params.action; // actionを受け取る
-
-  // Arduinoにactionを送信
-  switch (action) {
-    case "led":
-      arduinoSerial.write("w");
-      return res.send("Led light is on!");
-    case "off":
-      arduinoSerial.write("t");
-      return res.send("Led light is off!");
-    default:
-      return res.send("Action: " + action);
-  }
-});
+app.get("/control/:action", action.index);
 
 ////////////////////////////////////////////////////////////////
 
+const port = process.env.NODE_PORT || 3001;
 app.listen(port, function () {
   console.log("listening on port http://localhost:" + port + "!");
 });
