@@ -21,7 +21,7 @@ const arduinoCOMPort = arduino.arduinoCOMPort;
 const parser = arduino.parser;
 
 // シリアル通信 開始時
-parser.on("open", function () {
+parser.on("open", () => {
   console.log(`Serial Port ${arduinoCOMPort} is opened.`);
 });
 
@@ -38,12 +38,12 @@ parser.on("data", (data) => {
 ////////////////////////////////////////////////////////////////
 
 // indexページ
-app.get("/", function (req, res) {
+app.get("/", (_, res) => {
   return res.send("Hello Awecon!");
 });
 
 // 現在の室温を取得
-app.get("/temp", function (req, res) {
+app.get("/temp", (_, res) => {
   return res.send(String(currentTemp));
 });
 
@@ -53,6 +53,6 @@ app.get("/control/:action", action.index);
 ////////////////////////////////////////////////////////////////
 
 const port = process.env.NODE_PORT || 3001;
-app.listen(port, function () {
+app.listen(port, () => {
   console.log(`listening on port http://localhost:${port}`);
 });
