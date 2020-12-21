@@ -21,8 +21,8 @@ exports.index = (req, res) => {
       
       //arduinoにエアコン起動に必要な情報を送信
       //Power(電源)
-      arduinoSerial.write('P');
-      arduinoSerial.write(req.query.power);
+      // arduinoSerial.write('P');
+      // arduinoSerial.write(req.query.power);
       //Mode(運転モード)
       arduinoSerial.write('M');
       arduinoSerial.write(req.query.mode);
