@@ -3,43 +3,50 @@ const arduinoSerial = arduino.arduinoSerial;
 
 exports.index = (req, res) => {
   const action = req.params.action; // actionを受け取る
-  let temp_str;   //16~19度→t, 20度~→T
-  let temp_int;   //温度下一桁
 
   // Arduinoにactionを送信
   switch (action) {
     case "on":
+      const { mode, fan, temp, vdir, hdir } = req.query;
+
+      // エラーハンドリング
+      if (!mode || !fan || !temp || !vdir || !hdir) res.status(500).send('Invalid argument');
+      if (!(mode == 1 || mode == 2 || mode == 3 || mode == 4)) res.status(500).send('Invalid argument[mode]');
+      if (!(fan == 0 || fan == 1 || fan == 2 || fan == 3 || fan == 4 || fan == 5)) res.status(500).send('Invalid argument[fan]');
+      if (temp < 16 || temp >= 30) res.status(422).send('Invalid argument[temp]');
+      if (!(vdir == 0 || vdir == 1 || vdir == 2 || vdir == 3 || vdir == 4 || vdir == 5)) res.status(500).send('Invalid argument[vdir]');
+      if (!(hdir == 0 || hdir == 1 || hdir == 2 || hdir == 3 || hdir == 4 || vdir == 5)) res.status(500).send('Invalid argument[hdir]');
+
+      let tempCode; // 16~19度 -> t, 20~30度 -> T
+      let tempDigit; // 温度下一桁
       if (req.query.temp < 20) {
-        temp_str = 't';
-        temp_int = req.query.temp - 10;
-        temp_int = String(temp_int);
+        tempCode = "t";
+        tempDigit = req.query.temp - 10;
+        tempDigit = String(tempDigit);
       } else {
-        temp_str = 'T';
-        temp_int = req.query.temp - 20;
-        temp_int = String(temp_int);
+        tempCode = "T";
+        tempDigit = req.query.temp - 20;
+        tempDigit = String(tempDigit);
       }
-      
+
       //arduinoにエアコン起動に必要な情報を送信
-      //Power(電源)
-      // arduinoSerial.write('P');
-      // arduinoSerial.write(req.query.power);
       //Mode(運転モード)
-      arduinoSerial.write('M');
-      arduinoSerial.write(req.query.mode);
-      //Fan(風量), 
-      arduinoSerial.write('F');
-      arduinoSerial.write(req.query.fan);
+      arduinoSerial.write("M");
+      arduinoSerial.write(mode);
+      //Fan(風量),
+      arduinoSerial.write("F");
+      arduinoSerial.write(fan);
       //Temp(20度台下一桁),{t(10度台)},
-      arduinoSerial.write(temp_str);
-      arduinoSerial.write(temp_int);
+      arduinoSerial.write(tempCode);
+      arduinoSerial.write(tempDigit);
       //Vdir(風向高さ)
-      arduinoSerial.write('V');
-      arduinoSerial.write(req.query.vdir);
+      arduinoSerial.write("V");
+      arduinoSerial.write(vdir);
       //Hdir(風向左右)
-      arduinoSerial.write('H');
-      arduinoSerial.write(req.query.hdir);
+      arduinoSerial.write("H");
+      arduinoSerial.write(hdir);
       //End(終了信号)
-      arduinoSerial.write('E');
+      arduinoSerial.write("E");
       return res.send("Air conductor ON!");
     case "off":
       arduinoSerial.write("O");
