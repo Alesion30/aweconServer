@@ -10,12 +10,12 @@ exports.index = (req, res) => {
       const { mode, fan, temp, vdir, hdir } = req.query;
 
       // エラーハンドリング
-      if (!mode || !fan || !temp || !vdir || !hdir) res.status(500).send('Invalid argument');
-      if (!(mode == 1 || mode == 2 || mode == 3 || mode == 4)) res.status(500).send('Invalid argument[mode]');
-      if (!(fan == 0 || fan == 1 || fan == 2 || fan == 3 || fan == 4 || fan == 5)) res.status(500).send('Invalid argument[fan]');
-      if (temp < 16 || temp >= 30) res.status(422).send('Invalid argument[temp]');
-      if (!(vdir == 0 || vdir == 1 || vdir == 2 || vdir == 3 || vdir == 4 || vdir == 5)) res.status(500).send('Invalid argument[vdir]');
-      if (!(hdir == 0 || hdir == 1 || hdir == 2 || hdir == 3 || hdir == 4 || vdir == 5)) res.status(500).send('Invalid argument[hdir]');
+      if (!mode || !fan || !temp || !vdir || !hdir) return res.status(500).send('Invalid argument');
+      if (!(mode == 1 || mode == 2 || mode == 3 || mode == 4)) return res.status(500).send('Invalid argument[mode]');
+      if (!(fan == 0 || fan == 1 || fan == 2 || fan == 3 || fan == 4 || fan == 5)) return res.status(500).send('Invalid argument[fan]');
+      if (temp < 16 || temp >= 30) return res.status(422).send('Invalid argument[temp]');
+      if (!(vdir == 0 || vdir == 1 || vdir == 2 || vdir == 3 || vdir == 4 || vdir == 5)) return res.status(500).send('Invalid argument[vdir]');
+      if (!(hdir == 0 || hdir == 1 || hdir == 2 || hdir == 3 || hdir == 4 || vdir == 5)) return res.status(500).send('Invalid argument[hdir]');
 
       let tempCode; // 16~19度 -> t, 20~30度 -> T
       let tempDigit; // 温度下一桁
@@ -46,7 +46,7 @@ exports.index = (req, res) => {
       arduinoSerial.write('H');
       arduinoSerial.write(hdir);
       // End(終了信号)
-      // arduinoSerial.write('E');
+      arduinoSerial.write('E');
 
       const json = {
         message: 'Successfully activated the air conditioner!!',
