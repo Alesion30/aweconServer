@@ -35,8 +35,6 @@ parser.on("open", () => {
 
 // シリアル通信 受信時
 parser.on("data", (data) => {
-  console.log(data);
-
   // 現在の室温を反映
   const temp = util.getNumberVal(data);
   if (temp !== null) currentTemp = temp + offset;

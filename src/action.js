@@ -29,34 +29,40 @@ exports.index = (req, res) => {
         tempDigit = String(tempDigit);
       }
 
-      //arduinoにエアコン起動に必要な情報を送信
-      //Mode(運転モード)
+      // arduinoにエアコン起動に必要な情報を送信
+      // Mode(運転モード)
       arduinoSerial.write('M');
       arduinoSerial.write(mode);
-      //Fan(風量),
+      // Fan(風量),
       arduinoSerial.write('F');
       arduinoSerial.write(fan);
-      //Temp(20度台下一桁),{t(10度台)},
+      // Temp(20度台下一桁),{t(10度台)},
       arduinoSerial.write(tempCode);
       arduinoSerial.write(tempDigit);
-      //Vdir(風向高さ)
+      // Vdir(風向高さ)
       arduinoSerial.write('V');
       arduinoSerial.write(vdir);
-      //Hdir(風向左右)
+      // Hdir(風向左右)
       arduinoSerial.write('H');
       arduinoSerial.write(hdir);
-      //End(終了信号)
-      arduinoSerial.write('E');
+      // End(終了信号)
+      // arduinoSerial.write('E');
 
       const json = {
         message: 'Successfully activated the air conditioner!!',
         query: req.query
       };
+      console.log(json);
       return res.json(json);
     case 'off':
       arduinoSerial.write('O');
-      return res.send('Successfully deactivated the air conditioner...');
+      const offJson = {
+        message: 'Successfully deactivated the air conditioner!!'
+      };
+      console.log(offJson);
+      return res.send('Successfully deactivated the air conditioner!!');
     default:
-      return res.send('Action: ' + action);
+      console.log('action:', action);
+      return res.status(404).send('Not Found..');
   }
 };
