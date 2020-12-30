@@ -64,7 +64,11 @@ app.get("/", (_, res) => {
 
 // 現在の室温を取得
 app.get("/temp", (_, res) => {
-  return res.send(String(Math.round(currentTemp, 2)));
+  if (currentTemp) {
+    return res.send(String(Math.round(currentTemp, 2)));
+  } else {
+    return res.send(null);
+  }
 });
 
 // Arduinoの制御
