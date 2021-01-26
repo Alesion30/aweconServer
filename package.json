@@ -4,6 +4,7 @@
   "description": "awecon server",
   "main": "server.js",
   "scripts": {
+    "watch": "nodeman ./src/server.js",
     "start": "node ./src/server.js"
   },
   "author": "",
